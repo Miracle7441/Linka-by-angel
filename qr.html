@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linka - QR Business Card Maker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#080808;color:#fff;min-height:100vh}
+.bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(900px 500px at 15% 0%, #ff000033, transparent),radial-gradient(700px 400px at 90% 10%, #ff1a1a33, transparent),#080808}
+.header{padding:28px 6%;display:flex;align-items:center}
+.logo{font-weight:800;font-size:28px;letter-spacing:2px}
+.logo small{display:block;font-size:9px;letter-spacing:4px;color:#ffaaaa;font-weight:400;margin-top:4px}
+.container{display:grid;grid-template-columns:1.1fr 0.9fr;gap:28px;padding:0 6% 50px;max-width:1300px;margin:auto}
+@media(max-width:900px){.container{grid-template-columns:1fr}}
+.panel{background:#ffffff0a;border:1px solid #ffffff14;border-radius:22px;padding:26px;backdrop-filter:blur(18px)}
+.panel h2{font-size:22px;font-weight:700}
+.sub{color:#888;font-size:13px;margin:6px 0 20px}
+.field{margin-bottom:14px}
+.field label{font-size:10px;text-transform:uppercase;letter-spacing:1.3px;color:#ff8888;margin-bottom:7px;display:block}
+.field input,.field textarea{width:100%;background:#00000080;border:1px solid #ffffff18;border-radius:12px;padding:13px 14px;color:#fff;font-size:14px;outline:none}
+.field input:focus,.field textarea:focus{border-color:#ff1a1a66}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.btn{background:linear-gradient(135deg,#ff1a1a,#b00000);border:none;color:#fff;padding:14px;border-radius:12px;font-weight:700;width:100%;cursor:pointer;box-shadow:0 10px 30px #ff000044;transition:0.2s}
+.btn:hover{transform:translateY(-1px)}
+.btn2{background:transparent;border:1px solid #ffffff22;color:#fff;margin-top:10px}
+.preview-card{background:linear-gradient(145deg,#1e1e1e,#0d0d0d);border:1px solid #ff1a1a33;border-radius:26px;padding:24px;box-shadow:0 20px 60px #000}
+.qr-box{background:#fff;border-radius:16px;padding:14px;display:grid;place-items:center;min-height:230px}
+.line{height:1px;background:linear-gradient(90deg,transparent,#ff1a1a55,transparent);margin:16px 0}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">LINKA<small>YOUR BUSINESS, ONE QR</small></div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+  <!-- LEFT: FORM -->
+  <div class="panel">
+    <h2>Create Your Card</h2>
+    <div class="sub">Built for every business. Yours too.</div>
+    
+    <div class="grid2">
+      <div class="field"><label>Your Business Name</label><input id="name" placeholder="e.g. Angel Closet" oninput="gen()"></div>
+      <div class="field"><label>What You Do</label><input id="biz" placeholder="e.g. Luxury Fashion" oninput="gen()"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Phone / WhatsApp</label><input id="phone" placeholder="+234..." oninput="gen()"></div>
+      <div class="field"><label>Instagram / TikTok</label><input id="insta" placeholder="@yourhandle" oninput="gen()"></div>
+    </div>
+    <div class="field"><label>Link (Where QR goes)</label><input id="link" placeholder="https://instagram.com/..." oninput="gen()"></div>
+    <div class="field"><label>Offer / Slogan</label><textarea id="offer" rows="2" placeholder="e.g. 10% OFF First Order" oninput="gen()"></textarea></div>
+    
+    <button class="btn" onclick="gen()">✦ GENERATE QR</button>
+    <button class="btn btn2" onclick="downloadCard()">⬇ Download Business Card</button>
+  </div>
+
+  <!-- RIGHT: PREVIEW -->
+  <div>
+    <div class="preview-card" id="card">
+      <div style="display:flex;justify-content:space-between">
+        <div>
+          <div id="pBrand" style="font-weight:800;font-size:19px;letter-spacing:1px">YOUR BUSINESS</div>
+          <div id="pBiz" style="font-size:10px;letter-spacing:2px;color:#ffaaaa">WHAT YOU DO</div>
+        </div>
+        <div id="pLetter" style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#ff1a1a,#800);display:grid;place-items:center;font-weight:800">L</div>
+      </div>
+      <div class="qr-box" style="margin-top:18px"><div id="qrcode"></div><div id="qrPlaceholder" style="color:#999;font-size:12px">Your QR will appear here</div></div>
+      <div id="pInfo" style="margin-top:14px;font-size:13px;line-height:1.8;color:#ccc">Fill the form to see preview</div>
+      <div class="line"></div>
+      <div id="pOffer" style="background:#ff1a1a15;border:1px dashed #ff1a1a55;border-radius:10px;padding:10px;font-size:12px;color:#ffaaaa;text-align:center">Your offer here</div>
+      <div style="text-align:center;color:#555;font-size:9px;letter-spacing:1.5px;margin-top:12px">POWERED BY LINKA • SCAN TO CONNECT</div>
+    </div>
+    <button class="btn btn2" onclick="downloadQR()">⬇ Download QR Only</button>
+  </div>
+</div>
+
+<script>
+function gen(){
+ let n=document.getElementById('name').value||'YOUR BUSINESS';
+ let b=document.getElementById('biz').value||'WHAT YOU DO';
+ let p=document.getElementById('phone').value||'';
+ let i=document.getElementById('insta').value||'';
+ let l=document.getElementById('link').value||'https://linka.app';
+ let o=document.getElementById('offer').value||'Your offer here';
+ document.getElementById('pBrand').innerText=n.toUpperCase();
+ document.getElementById('pBiz').innerText=b.toUpperCase();
+ document.getElementById('pLetter').innerText=n.charAt(0).toUpperCase()||'L';
+ document.getElementById('pInfo').innerHTML=(p?'📞 '+p+'<br>':'')+(i?'📸 '+i:'');
+ document.getElementById('pOffer').innerText=o;
+ if(l){
+  document.getElementById('qrPlaceholder').style.display='none';
+  document.getElementById('qrcode').innerHTML='';
+  new QRCode(document.getElementById('qrcode'),{text:l,width:190,height:190,colorDark:"#000",colorLight:"#fff",correctLevel:QRCode.CorrectLevel.H});
+ }
+}
+function downloadQR(){
+  let img=document.querySelector('#qrcode img');
+  if(!img) return alert('Type a link first');
+  let a=document.createElement('a');a.href=img.src;a.download='Linka-QR.png';a.click();
+}
+function downloadCard(){
+  html2canvas(document.getElementById('card'),{scale:2,backgroundColor:null}).then(c=>{
+    let a=document.createElement('a');a.download='Linka-Card.png';a.href=c.toDataURL();a.click();
+  });
+}
+gen();
+</script>
+</body>
+</html>
